@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Espera activa para asegurar que `db` esté inicializada antes de usarla
+// Espera activa para asegurar que `gdb` esté inicializada antes de usarla
 function esperarDBListo() {
   return new Promise((resolve) => {
     if (typeof db !== "undefined") {
