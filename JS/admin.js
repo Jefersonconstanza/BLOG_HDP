@@ -10,11 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
   esperarDBListo().then(() => {
     mostrarUsuarios();
     mostrarPosts();
-    cargarComentariosPendientes();
+    cargarComentariosPendientes();  // ← Ya existe
+    cargarComentariosAprobados();   // ← AÑADE ESTA LÍNEA AQUÍ
   });
 });
 
-// Espera activa para asegurar que `gdb` esté inicializada antes de usarla
+// Espera activa para asegurar que `db` esté inicializada antes de usarla
 function esperarDBListo() {
   return new Promise((resolve) => {
     if (typeof db !== "undefined") {
@@ -388,14 +389,17 @@ function cargarComentariosPendientes() {
 function aprobarComentario(id) {
   const tx = db.transaction("comentarios", "readwrite");
   const store = tx.objectStore("comentarios");
-
   const req = store.get(id);
+
   req.onsuccess = () => {
     const comentario = req.result;
-    if (comentario) {
-      comentario.estado = "aprobado";
-      store.put(comentario).onsuccess = cargarComentariosPendientes;
-    }
+    comentario.estado = "aprobado";
+    store.put(comentario);
+
+    tx.oncomplete = () => {
+      alert("Comentario aprobado");
+      location.reload(); // ← recarga toda la página
+    };
   };
 }
 
@@ -418,6 +422,54 @@ function verificarBotonCerrarSesion() {
   if (btn) {
     btn.style.display = user ? "inline-block" : "none";
   }
+}
+
+function cargarComentariosAprobados() {
+  const contenedor = document.getElementById("comentariosAprobados");
+  contenedor.innerHTML = "";
+
+  const tx = db.transaction(["comentarios", "posts"], "readonly");
+  const storeComentarios = tx.objectStore("comentarios");
+  const storePosts = tx.objectStore("posts");
+  const index = storeComentarios.index("estado");
+  const req = index.openCursor("aprobado");
+
+  req.onsuccess = (e) => {
+    const cursor = e.target.result;
+    if (cursor) {
+      const comentario = cursor.value;
+
+      // Obtener título del post relacionado
+      const postReq = storePosts.get(comentario.postID);
+      postReq.onsuccess = () => {
+        const post = postReq.result;
+        const titulo = post ? post.titulo : "Post no encontrado";
+
+        const div = document.createElement("div");
+        div.className = "card mb-2";
+        div.innerHTML = `
+          <div class="card-body">
+            <p><strong>Post:</strong> ${titulo}</p>
+            <p><strong>Prueba:</strong> ${comentario.texto}</p>
+            <button class="btn btn-danger btn-sm" onclick="eliminarComentarioAprobado(${comentario.id})">Eliminar</button>
+          </div>
+        `;
+        contenedor.appendChild(div);
+      };
+
+      cursor.continue();
+    }
+  };
+}
+function eliminarComentarioAprobado(id) {
+  const tx = db.transaction("comentarios", "readwrite");
+  const store = tx.objectStore("comentarios");
+  store.delete(id);
+
+  tx.oncomplete = () => {
+    alert("Comentario eliminado");
+    location.reload(); // refresca la lista
+  };
 }
 
 // Ejecutarlo cuando cargue todo

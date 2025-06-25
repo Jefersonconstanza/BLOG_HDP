@@ -1,102 +1,74 @@
-// js/post.js
+function mostrarFormularioComentario(postID) {
+  const user = JSON.parse(sessionStorage.getItem("usuarioActivo"));
+  if (!user || user.rol === "admin") return;
 
-let postID = parseInt(localStorage.getItem("postID"));
+  const contenedor = document.getElementById(`formComentario-${postID}`);
+  contenedor.innerHTML = `
+    <form onsubmit="enviarComentario(${postID}); return false;">
+      <div class="mb-2">
+        <textarea id="comentarioTexto-${postID}" class="form-control" placeholder="Escribe tu comentario..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-sm btn-success">Enviar comentario</button>
+    </form>
+  `;
+}
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (!postID) {
-    document.getElementById("post").innerText = "Post no encontrado.";
-    return;
-  }
+function enviarComentario(postID) {
+  const texto = document.getElementById(`comentarioTexto-${postID}`).value.trim();
+  const user = JSON.parse(sessionStorage.getItem("usuarioActivo"));
+  if (!texto || !user) return;
 
-  cargarPost(postID);
-  cargarComentarios(postID);
+  // Validar si el usuario está silenciado
+  const tx = db.transaction("usuarios", "readonly");
+  const store = tx.objectStore("usuarios");
+  const req = store.get(user.usuario);
 
-  const user = JSON.parse(localStorage.getItem("usuarioActivo"));
-  if (!user || user.silenciado) {
-    document.getElementById("formComentarioContainer").style.display = "none";
-  } else {
-    document.getElementById("formComentario").addEventListener("submit", (e) => {
-      e.preventDefault();
-      guardarComentario(postID, user.usuario);
-    });
-  }
-});
-
-function cargarPost(id) {
-  const tx = db.transaction(["posts"], "readonly");
-  const store = tx.objectStore("posts");
-  const get = store.get(id);
-
-  get.onsuccess = () => {
-    const post = get.result;
-    if (!post) {
-      document.getElementById("post").innerText = "Post no encontrado.";
+  req.onsuccess = () => {
+    const usuarioBD = req.result;
+    if (usuarioBD && usuarioBD.silenciado) {
+      alert("No puedes comentar porque estás silenciado por un administrador.");
       return;
     }
 
-  document.getElementById("post").innerHTML = `
-  <div class="card shadow">
-    <img src="${post.portada}" class="card-img-top" alt="Portada del post">
-    <div class="card-body">
-      <h2 class="card-title">${post.titulo}</h2>
-      <p class="text-muted">
-        <strong>${post.categoria}</strong> - ${new Date(post.fecha).toLocaleString()}<br>
-        Autor: ${post.autor}
-      </p>
-      <p class="card-text">${post.contenido}</p>
-    </div>
-  </div>
-`;
+    const comentario = {
+      id: Date.now(),
+      postID,
+      usuario: user.usuario,
+      texto,
+      estado: "pendiente"
+    };
 
+    const txComentario = db.transaction("comentarios", "readwrite");
+    txComentario.objectStore("comentarios").add(comentario).onsuccess = () => {
+      alert("Comentario enviado. Espera la aprobación del administrador.");
+      document.getElementById(`comentarioTexto-${postID}`).value = "";
+    };
   };
 }
 
-function cargarComentarios(postID) {
-  const tx = db.transaction(["comentarios"], "readonly");
-  const store = tx.objectStore("comentarios");
-  const index = store.index("postID");
+function mostrarComentarios(postID) {
+  const contenedor = document.getElementById(`comentarios-${postID}`);
+  const tx = db.transaction("comentarios", "readonly");
+  const index = tx.objectStore("comentarios").index("postID");
 
-  const comentariosDiv = document.getElementById("comentarios");
-  comentariosDiv.innerHTML = "";
+  let hayComentarios = false;
 
   index.openCursor(IDBKeyRange.only(postID)).onsuccess = (e) => {
     const cursor = e.target.result;
     if (cursor) {
       const comentario = cursor.value;
-      if (comentario.aprobado) {
-        comentariosDiv.innerHTML += `
-          <div style="margin-bottom: 10px;">
-            <p><strong>${comentario.autor}</strong> dijo:</p>
-            <p>${comentario.texto}</p>
-            <hr>
+      if (comentario.estado === "aprobado" || comentario.estado === "oculto") {
+        contenedor.innerHTML += `
+          <div class="border p-2 mb-2">
+            <strong>${comentario.usuario}:</strong> ${comentario.texto}
+            <span class="badge bg-${comentario.estado === "aprobado" ? "success" : "secondary"}">${comentario.estado}</span>
           </div>
         `;
+        hayComentarios = true;
       }
       cursor.continue();
+    } else if (!hayComentarios) {
+      contenedor.innerHTML = `<p class="text-muted">Sin comentarios visibles.</p>`;
     }
-  };
-}
-
-function guardarComentario(postID, autor) {
-  const texto = document.getElementById("comentarioTexto").value.trim();
-  const estado = document.getElementById("estadoComentario");
-
-  if (texto === "") {
-    estado.innerText = "El comentario no puede estar vacío.";
-    return;
-  }
-
-  const comentario = {
-    postID,
-    autor,
-    texto,
-    aprobado: false, // necesita aprobación del admin
-    fecha: new Date().toISOString()
-  };
-
-  const tx = db.transaction(["comentarios"], "readwrite");
-  tx.objectStore("comentarios").add(comentario).onsuccess = () => {
-    estado.innerText = "Comentario enviado para revisión.";
-    document.getElementById("formComentario").reset();
   };
 }

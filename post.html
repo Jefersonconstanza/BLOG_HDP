@@ -15,10 +15,13 @@
 
   <script src="JS/Db.js"></script>
   <script src="JS/main.js"></script>
+  <script src="JS/Post.js"></script>
 
   <script>
+    // Cargar navbar con modo oscuro y cerrar sesión
     document.addEventListener("DOMContentLoaded", () => {
       const user = JSON.parse(sessionStorage.getItem("usuarioActivo"));
+
       const navbar = `
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
           <div class="container">
@@ -30,23 +33,43 @@
               <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navLinks">
                 <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
               </ul>
-              <button id="cerrarSesionBtn" class="btn btn-outline-light">Cerrar sesión</button>
+              <div class="d-flex gap-2">
+                <button id="darkModeToggle" class="btn btn-outline-light">Modo oscuro 🌙</button>
+                <button id="cerrarSesionBtn" class="btn btn-outline-light">Cerrar sesión</button>
+              </div>
             </div>
           </div>
         </nav>`;
+      
       document.getElementById("navbarContainer").innerHTML = navbar;
 
+      // Configurar cerrar sesión
       document.getElementById("cerrarSesionBtn").addEventListener("click", () => {
         sessionStorage.removeItem("usuarioActivo");
         window.location.href = "login.html";
       });
 
+      // Configurar modo oscuro
+      const toggleBtn = document.getElementById("darkModeToggle");
+      const body = document.body;
+      if (localStorage.getItem("dark-mode") === "enabled") {
+        body.classList.add("dark-mode");
+      }
+
+      toggleBtn.addEventListener("click", () => {
+        body.classList.toggle("dark-mode");
+        const enabled = body.classList.contains("dark-mode");
+        localStorage.setItem("dark-mode", enabled ? "enabled" : "disabled");
+      });
+
+      // Verificar si hay usuario
       if (!user) {
         alert("Debes iniciar sesión para ver el post completo.");
         window.location.href = "login.html";
         return;
       }
 
+      // Esperar a que IndexedDB esté lista
       esperarDB(() => {
         const id = parseInt(localStorage.getItem("postID"));
         if (!id || isNaN(id)) {

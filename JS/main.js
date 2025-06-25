@@ -105,7 +105,7 @@ function mostrarPost(post) {
   if (!cont) return;
 
   const card = document.createElement("div");
-  card.className = "col-md-6";
+  card.className = "col-md-6 col-lg-4 d-flex justify-content-center align-items-stretch mb-4";
 
   const portada = post.portada || 'img/portada_default.jpg';
   const fechaFormat = new Date(post.fecha).toLocaleString();
@@ -113,21 +113,23 @@ function mostrarPost(post) {
   const likeBtnID = `likeBtn-${post.id}`;
   const likeCountID = `likeCount-${post.id}`;
 
-  card.innerHTML = `
-    <div class="card mb-3">
-      <img src="${portada}" class="card-img-top" alt="Portada">
-      <div class="card-body">
-        <h5 class="card-title">${post.titulo}</h5>
-        <p>${post.contenido}</p>
-        <p><strong>Categoría:</strong> ${post.categoria}</p>
-        <p><strong>Autor:</strong> ${post.autor}</p>
-        <p><strong>Fecha:</strong> ${fechaFormat}</p>
-        <button id="${likeBtnID}" class="btn btn-outline-danger btn-sm mb-2" onclick="darLike(${post.id})">❤️ Me gusta</button>
-        <p><small id="${likeCountID}" class="text-muted">Cargando likes...</small></p>
+card.innerHTML = `
+  <div class="post-card">
+    <img src="${portada}" alt="Imagen del post">
+    <div class="content">
+      <h3>${post.titulo}</h3>
+      <p class="meta"><strong>Autor:</strong> ${post.autor}</p>
+      <p class="meta"><strong>Categoría:</strong> ${post.categoria}</p>
+      <p class="meta">Publicado: ${fechaFormat}</p>
+      <p class="excerpt">${post.contenido.slice(0, 80)}...</p>
+      <div class="actions">
+        <button id="${likeBtnID}" class="btn btn-danger btn-sm" onclick="darLike(${post.id})">❤️ Me gusta</button>
         <button class="btn btn-primary btn-sm" onclick="verDetallePost(${post.id})">Ver más</button>
       </div>
     </div>
-  `;
+  </div>
+`;
+
 
   cont.appendChild(card);
   actualizarEstadoLike(post.id);

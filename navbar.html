@@ -10,21 +10,10 @@
           <a class="nav-link" href="index.html">Inicio</a>
         </li>
       </ul>
-      <button id="darkModeToggle" class="btn btn-outline-light">🌙 Modo Oscuro</button>
+      <button id="darkModeToggle" class="btn btn-outline-light me-2">🌙 Modo Oscuro</button>
+      <button id="botonCerrarSesion" class="btn btn-warning" style="display: none;">
+        🚪 Cerrar sesión
+      </button>
     </div>
   </div>
 </nav>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const user = JSON.parse(sessionStorage.getItem("usuarioActivo"));
-    const navLinks = document.getElementById("navLinks");
-
-    if (user) {
-      const crear = document.createElement("li");
-      crear.className = "nav-item";
-      crear.innerHTML = `<a class="nav-link" href="post.html">Crear Post</a>`;
-      navLinks.appendChild(crear);
-    }
-  });
-</script>

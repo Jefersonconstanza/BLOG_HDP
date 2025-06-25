@@ -8,11 +8,7 @@
 </head>
 <body>
   <div id="navbarContainer"></div>
-  <div id="zonaCerrarSesion" class="text-end p-3">
-    <button onclick="cerrarSesion()" id="botonCerrarSesion" class="btn btn-warning" style="display: none;">
-      🚪 Cerrar sesión
-    </button>
-  </div>
+  
 
   <div class="container py-4">
     <h1 class="text-center text-primary mb-4">Bienvenido al Blog</h1>
@@ -39,23 +35,60 @@
 
   <script src="JS/Db.js"></script>
   <script src="JS/main.js"></script>
-  <script>
-    fetch("navbar.html")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("navbarContainer").innerHTML = data;
+<script>
+  function cerrarSesion() {
+    sessionStorage.removeItem("usuarioActivo");
+    window.location.href = "login.html";
+  }
 
-        const toggle = () => {
-          document.body.classList.toggle("dark-mode");
-          localStorage.setItem("dark-mode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
-        };
+  fetch("navbar.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("navbarContainer").innerHTML = data;
 
-        if (localStorage.getItem("dark-mode") === "enabled") {
-          document.body.classList.add("dark-mode");
+      // Activar modo oscuro
+      const toggle = () => {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem("dark-mode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
+      };
+
+      if (localStorage.getItem("dark-mode") === "enabled") {
+        document.body.classList.add("dark-mode");
+      }
+
+      document.getElementById("darkModeToggle").addEventListener("click", toggle);
+
+      // Lógica de sesión
+      const user = JSON.parse(sessionStorage.getItem("usuarioActivo"));
+      const navbarCollapse = document.getElementById("navbarNav");
+      const cerrarBtn = document.getElementById("botonCerrarSesion");
+
+      if (user) {
+        // Solo mostrar botón de cerrar sesión
+        if (cerrarBtn) {
+          cerrarBtn.style.display = "inline-block";
+          cerrarBtn.onclick = cerrarSesion;
         }
 
-        document.getElementById("darkModeToggle").addEventListener("click", toggle);
-      });
-  </script>
+      } else {
+        // Mostrar botones de login y registro
+        const loginBtn = document.createElement("a");
+        loginBtn.href = "login.html";
+        loginBtn.className = "btn btn-primary me-2";
+        loginBtn.style.color = "#ffffff";
+        loginBtn.textContent = "Iniciar sesión";
+
+        const registroBtn = document.createElement("a");
+        registroBtn.href = "register.html";
+        registroBtn.className = "btn btn-success";
+        registroBtn.style.color = "#ffffff";
+        registroBtn.textContent = "Registrarse";
+
+        navbarCollapse.appendChild(loginBtn);
+        navbarCollapse.appendChild(registroBtn);
+      }
+    });
+</script>
+
 </body>
 </html>
