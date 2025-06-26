@@ -1,3 +1,4 @@
+//Lógica exclusiva para el panel de administrador
 document.addEventListener("DOMContentLoaded", () => {
   const usuarioActivo = JSON.parse(sessionStorage.getItem("usuarioActivo"));
   if (!usuarioActivo || usuarioActivo.rol !== "admin") {
@@ -6,16 +7,16 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Esperar a que IndexedDB esté lista
+  //Esperar a que IndexedDB esté lista
   esperarDBListo().then(() => {
     mostrarUsuarios();
     mostrarPosts();
-    cargarComentariosPendientes();  // ← Ya existe
-    cargarComentariosAprobados();   // ← AÑADE ESTA LÍNEA AQUÍ
+    cargarComentariosPendientes();  // Ya existe
+    cargarComentariosAprobados();   // AÑADE ESTA LÍNEA AQUÍ
   });
 });
 
-// Espera activa para asegurar que `db` esté inicializada antes de usarla
+//Espera activa para asegurar que `db` esté inicializada antes de usarla
 function esperarDBListo() {
   return new Promise((resolve) => {
     if (typeof db !== "undefined") {
@@ -151,7 +152,7 @@ document.getElementById("formPost").addEventListener("submit", function (e) {
     reader.onload = () => guardarPost(reader.result);
     reader.readAsDataURL(imagenInput.files[0]);
   } else {
-    guardarPost(null); // Para edición, se conserva portada anterior
+    guardarPost(null); //Para edición, se conserva portada anterior
   }
 });
 
@@ -240,20 +241,20 @@ function mostrarPosts() {
       const comentariosID = `comentarios-${post.id}`;
 
       div.innerHTML = `
-        <img src="${portada}" class="card-img-top" alt="Portada">
-        <div class="card-body">
-          <h5 class="card-title">${post.titulo}</h5>
-          <p>${post.contenido}</p>
-          <p><strong>Categoría:</strong> ${post.categoria}</p>
-          <p><strong>Autor:</strong> ${post.autor}</p>
-          <p><strong>Fecha:</strong> ${fechaFormat}</p>
-          <button class="btn btn-sm btn-outline-danger mb-2" id="${likeBtnID}" onclick="verLikesPost(${post.id})">❤️ Ver Me gustas</button>
-          <p><small class="text-muted" id="${likeCountID}">Cargando likes...</small></p>
-          <button class="btn btn-sm btn-primary me-2" onclick="editarPost(${post.id})">Editar</button>
-          <button class="btn btn-sm btn-danger" onclick="eliminarPost(${post.id})">Eliminar</button>
-          <div class="mt-3" id="${comentariosID}"></div>
-        </div>
-      `;
+    <img src="${portada}" class="card-img-top" alt="Portada">
+    <div class="card-body">
+    <h5 class="card-title">${post.titulo}</h5>
+    <p>${post.contenido}</p>
+    <p><strong>Categoría:</strong> ${post.categoria}</p>
+    <p><strong>Autor:</strong> ${post.autor}</p>
+    <p><strong>Fecha:</strong> ${fechaFormat}</p>
+    <p><strong>Me gusta:</strong> <span id="${likeCountID}">0</span></p>
+    <button class="btn btn-sm btn-outline-danger mb-2" id="${likeBtnID}" onclick="verLikesPost(${post.id})">❤️ Ver Me gustas</button>
+    <button class="btn btn-sm btn-primary me-2" onclick="editarPost(${post.id})">Editar</button>
+    <button class="btn btn-sm btn-danger" onclick="eliminarPost(${post.id})">Eliminar</button>
+    <div class="mt-3" id="${comentariosID}"></div>
+  </div>
+`;
 
       contenedor.appendChild(div);
 
@@ -398,7 +399,7 @@ function aprobarComentario(id) {
 
     tx.oncomplete = () => {
       alert("Comentario aprobado");
-      location.reload(); // ← recarga toda la página
+      location.reload(); // recarga toda la página
     };
   };
 }
@@ -415,7 +416,7 @@ function cerrarSesion() {
   }
 }
 
-// Mostrar u ocultar el botón si hay usuario activo
+//Mostrar u ocultar el botón si hay usuario activo
 function verificarBotonCerrarSesion() {
   const user = JSON.parse(sessionStorage.getItem("usuarioActivo"));
   const btn = document.getElementById("botonCerrarSesion");
@@ -439,7 +440,7 @@ function cargarComentariosAprobados() {
     if (cursor) {
       const comentario = cursor.value;
 
-      // Obtener título del post relacionado
+      //Obtener título del post relacionado
       const postReq = storePosts.get(comentario.postID);
       postReq.onsuccess = () => {
         const post = postReq.result;
@@ -468,17 +469,17 @@ function eliminarComentarioAprobado(id) {
 
   tx.oncomplete = () => {
     alert("Comentario eliminado");
-    location.reload(); // refresca la lista
+    location.reload(); //refresca la lista
   };
 }
 
-// Ejecutarlo cuando cargue todo
+//Ejecutarlo cuando cargue todo
 document.addEventListener("DOMContentLoaded", verificarBotonCerrarSesion);
 
   const toggle = document.getElementById("darkModeToggle");
   const body = document.body;
 
-  // Cargar estado previo (si se desea)
+  //Cargar estado previo (si se desea)
   if (localStorage.getItem("dark-mode") === "enabled") {
     body.classList.add("dark-mode");
   }

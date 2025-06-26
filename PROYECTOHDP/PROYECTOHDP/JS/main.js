@@ -1,3 +1,4 @@
+//Controla la carga de posts, paginación, eventos generales del sitio
 let posts = [];
 let paginaActual = 1;
 const POSTS_POR_PAGINA = 10;
@@ -113,27 +114,26 @@ function mostrarPost(post) {
   const likeBtnID = `likeBtn-${post.id}`;
   const likeCountID = `likeCount-${post.id}`;
 
-card.innerHTML = `
-  <div class="post-card">
-    <img src="${portada}" alt="Imagen del post">
-    <div class="content">
-      <h3>${post.titulo}</h3>
-      <p class="meta"><strong>Autor:</strong> ${post.autor}</p>
-      <p class="meta"><strong>Categoría:</strong> ${post.categoria}</p>
-      <p class="meta">Publicado: ${fechaFormat}</p>
-      <p class="excerpt">${post.contenido.slice(0, 80)}...</p>
-      <div class="actions">
-        <button id="${likeBtnID}" class="btn btn-danger btn-sm" onclick="darLike(${post.id})">❤️ Me gusta</button>
-        <button class="btn btn-primary btn-sm" onclick="verDetallePost(${post.id})">Ver más</button>
+  card.innerHTML = `
+    <div class="card shadow post-card" style="width: 100%;">
+      <img src="${portada}" class="card-img-top" alt="Imagen del post">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">${post.titulo}</h5>
+        <p class="card-text"><strong>Autor:</strong> ${post.autor}</p>
+        <p class="card-text"><strong>Categoría:</strong> ${post.categoria}</p>
+        <p class="card-text">Publicado: ${fechaFormat}</p>
+        <p class="card-text"><strong>Likes:</strong> <span id="${likeCountID}">0</span></p>
+        <div class="mt-auto d-flex justify-content-between">
+          <button id="${likeBtnID}" class="btn btn-danger btn-sm" onclick="darLike(${post.id})">❤️ Me gusta</button>
+          <button class="btn btn-primary btn-sm" onclick="verDetallePost(${post.id})">Ver más</button>
+        </div>
       </div>
     </div>
-  </div>
-`;
-
+  `;
 
   cont.appendChild(card);
-  actualizarEstadoLike(post.id);
-  contarLikes(post.id);
+  actualizarEstadoLike(post.id); // actualiza el texto del contador
+  contarLikes(post.id);          // actualiza el valor en el span
 }
 
 function verDetallePost(id) {
@@ -141,7 +141,7 @@ function verDetallePost(id) {
   window.location.href = "post.html";
 }
 
-// LIKES
+//LIKES
 function darLike(postID) {
   const user = JSON.parse(sessionStorage.getItem("usuarioActivo"));
   if (!user) return alert("Debes iniciar sesión para dar me gusta.");
