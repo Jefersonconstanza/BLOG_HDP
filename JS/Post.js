@@ -1,3 +1,4 @@
+//Carga de comentarios, publicación y validaciones dentro de un post
 function mostrarFormularioComentario(postID) {
   const user = JSON.parse(sessionStorage.getItem("usuarioActivo"));
   if (!user || user.rol === "admin") return;
@@ -18,7 +19,7 @@ function enviarComentario(postID) {
   const user = JSON.parse(sessionStorage.getItem("usuarioActivo"));
   if (!texto || !user) return;
 
-  // Validar si el usuario está silenciado
+  //Validar si el usuario está silenciado
   const tx = db.transaction("usuarios", "readonly");
   const store = tx.objectStore("usuarios");
   const req = store.get(user.usuario);

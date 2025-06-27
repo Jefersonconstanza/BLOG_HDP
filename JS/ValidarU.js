@@ -1,3 +1,4 @@
+//Validación del login y registro de usuarios
 document.addEventListener("DOMContentLoaded", () => {
   let checkReady = setInterval(() => {
     if (typeof db !== "undefined" && db) {

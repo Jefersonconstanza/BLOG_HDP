@@ -1,3 +1,4 @@
+/*Archivo CSS compilado con todos los estilos visuales del sitio que se hizo*/
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f3f4f6;
@@ -114,7 +115,7 @@ footer {
 }
 
 .post-card {
-  background-color: #2a2739;
+  background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   overflow: hidden;
@@ -183,6 +184,18 @@ footer {
 .post-card .content .actions .btn:last-child:hover {
   background: rgb(232.1623762376, 35.0376237624, 132.398019802);
 }
+.dark-mode .post-card {
+  background-color: #1e1e1e !important;
+  color: #f0f0f0 !important;
+  border: 1px solid #444;
+}
+
+.dark-mode .post-card a,
+.dark-mode .post-card .card-text,
+.dark-mode .post-card .card-title {
+  color: #f0f0f0 !important;
+}
+
 
 .search-filter {
   display: flex;
