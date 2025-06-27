@@ -1,0 +1,31 @@
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const usuario = JSON.parse(sessionStorage.getItem("usuarioActivo"));
+    const estaEnAdmin = window.location.pathname.includes("admin.html");
+
+    // Si el usuario es admin y está fuera del admin, lo regresa
+    if (usuario?.rol === "admin" && !estaEnAdmin) {
+      alert("No tienes permitido acceder aquí como administrador.");
+      window.location.href = "admin.html";
+    }
+  });
+</script>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Mi Blog</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navLinks">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Inicio</a>
+        </li>
+      </ul>
+      <button id="darkModeToggle" class="btn btn-outline-light me-2">🌙 Modo Oscuro</button>
+      <button id="botonCerrarSesion" class="btn btn-warning" style="display: none;">
+        🚪 Cerrar sesión
+      </button>
+    </div>
+  </div>
+</nav>
